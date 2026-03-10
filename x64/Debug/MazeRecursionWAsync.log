@@ -1,2 +1,4 @@
 ﻿  main.cpp
-  MazeRecursionWAsync.vcxproj -> C:\Users\chung\Desktop\C++ Examples\MazeRecursionWAsync\x64\Debug\MazeRecursionWAsync.exe
+C:\Users\chung\OneDrive\Desktop\Recursion\main.cpp(58): warning C4172: returning address of local variable or temporary: up_node
+C:\Users\chung\OneDrive\Desktop\Recursion\main.cpp(71): warning C4172: returning address of local variable or temporary: up_node
+  MazeRecursionWAsync.vcxproj -> C:\Users\chung\OneDrive\Desktop\Recursion\x64\Debug\MazeRecursionWAsync.exe

@@ -4,6 +4,9 @@
 #include <stdexcept>
 
 
+
+
+
 struct My2Vec {
 	My2Vec(int x, int y) { 
 		_x = x; 
@@ -24,6 +27,57 @@ struct My2Vec {
 	}
 };
 
+struct Node {
+	const char* id;
+	Node* parent;
+	std::vector<Node*> children;
+	std::vector<My2Vec> steps_taken;
+	Node() {
+		parent = nullptr;
+	}
+	void Add_child(Node* child) {
+		children.push_back(child);
+	}
+
+	void Add_step(My2Vec step) {
+		steps_taken.push_back(step);
+	}
+};
+
+enum class eOBJ : int {
+	Node = 0,
+	My2Vec = 1
+};
+
+void* Find_Winning_Recursive(std::vector<void*>& void_vecRef, eOBJ otype, Node* up_node) {
+
+	if (up_node->id == "G") {
+		std::cout << "G was found!" << std::endl;
+		switch (otype) {
+		case eOBJ::Node:
+			return &up_node;
+			break;
+		case eOBJ::My2Vec:
+			return &up_node->steps_taken[0];
+			break;
+		}
+	}
+	for (auto childNode : up_node->children) {
+		auto v = Find_Winning_Recursive(void_vecRef, otype, childNode);
+		if (v != nullptr) {
+			void_vecRef.push_back(v);
+			switch (otype) {
+			case eOBJ::Node:
+				return &up_node;
+				break;
+			case eOBJ::My2Vec:
+				return &up_node->steps_taken[0];
+				break;
+			}
+		}
+	}
+	return nullptr;
+}
 
 struct Maze {
 	Maze(int size) {
@@ -124,12 +178,12 @@ std::vector<My2Vec> PossibleDirecs(My2Vec& start, Maze* maze, Maze* steps) {
 		ret_Ds.push_back(D);	
 	}
 	if (ret_Ds.size() == 0) {
-		std::cout << "no direcs returned " << std::endl;
+		//std::cout << "no direcs returned (dead end)" << std::endl;
 	}
 	return ret_Ds;
 }
 
-Generic recur(My2Vec start, Maze* maze, Maze* steps, int* counter_stackframes) {
+Generic recur(My2Vec start, Maze* maze, Maze* steps, int* counter_stackframes, Node* parent_node) {
 
 	if (counter_stackframes) { 
 		*counter_stackframes += 1; 
@@ -138,18 +192,33 @@ Generic recur(My2Vec start, Maze* maze, Maze* steps, int* counter_stackframes) {
 			throw std::out_of_range("You've hit 1000 stackframes/recursive calls. Exit."); 
 		} 
 	}
+
+	auto curNode = new Node();
+	curNode->Add_step(start);
+	parent_node->Add_child(curNode);
+	curNode->parent = parent_node;
 	
-	if (maze->get_rc(start) == 'G' || maze->get_rc(start) == 'g') { steps->set_rc(start, 'g'); return Generic("MazeC",steps); }
+	
+	if (maze->get_rc(start) == 'G' || maze->get_rc(start) == 'g') { 
+		steps->set_rc(start, 'g'); 
+		curNode->id = "G";
+		return Generic("MazeC",steps); 
+	}
 	steps->set_rc(start, 'o');
 
 	auto possibleDirecs = PossibleDirecs(start, maze, steps);
 	if (possibleDirecs.size() == 0) { 
-		return Generic("nullptr", nullptr); 
+		std::cout << "deadend on recur(current) sf#"<< *counter_stackframes <<".no possible direcs" << std::endl;
+		return Generic("nullptr", nullptr);  //On a dead end should cut off ancestry.
 	}
 	
 	for (auto d : possibleDirecs) {
-		auto res = recur(d, maze, steps, counter_stackframes);
-		if (res._type == "MazeC") return res;
+		auto res = recur(d, maze, steps, counter_stackframes, curNode);
+		if (res._type == "MazeC") { return res; }
+		else {
+			//One that returns a dead end has his ancestry cut off.
+			std::cout << "deadend on recur(child) sf#" << *counter_stackframes << ". no possible direcs" << std::endl;
+		}
 	}
 
 	return Generic("nullptr",nullptr);
@@ -179,12 +248,15 @@ int main(int argc, const char* argv[]) {
 	std::cout << maze->str() << std::endl;
 
 	int* recurN = new int(0);
-	
-	auto res = recur(My2Vec(0,0), maze, steps, recurN);
+	auto mainNode = new Node();
+	mainNode->id = "MAIN";
+	auto res = recur(My2Vec(0,0), maze, steps, recurN, mainNode);
+	std::cout << "stackframes created " << *recurN << std::endl;
 	if (res._type == "MazeC") {
 		std::cout << "\n" + static_cast<Maze*>(res._data)->str() << std::endl;
 	}
-	
+	std::vector<void*> generic_container;
+	Find_Winning_Recursive(generic_container, eOBJ::Node, mainNode);
 
 	delete recurN;
 	delete maze;

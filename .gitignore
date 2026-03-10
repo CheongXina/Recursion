@@ -1,0 +1,73 @@
+# Visual Studio temporary files
+.vs/
+*.VC.db
+*.VC.opendb
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Build results
+Debug/
+Release/
+x64/
+x86/
+bin/
+obj/
+out/
+build/
+
+# CMake build directories (if used)
+CMakeFiles/
+CMakeCache.txt
+cmake-build-*/
+*.cmake
+
+# Visual Studio generated files
+*.idb
+*.pdb
+*.ilk
+*.tlog
+*.lastbuildstate
+*.log
+
+# Incremental linker files
+*.ipdb
+*.iobj
+
+# Precompiled headers
+*.pch
+
+# IntelliSense files
+*.ipch
+
+# Visual Studio profiler
+*.psess
+*.vsp
+*.vspx
+*.sap
+
+# Windows image file caches
+Thumbs.db
+ehthumbs.db
+
+# Test results
+TestResults/
+
+# NuGet packages (if used)
+packages/
+*.nupkg
+
+# Publish output
+publish/
+
+# Backup & temporary files
+*.bak
+*.tmp
+*.temp
+
+# Visual Studio Code settings (optional)
+.vscode/
+
+# OS files
+.DS_Store
