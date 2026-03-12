@@ -33,6 +33,7 @@ struct Node {
 	std::vector<Node*> children;
 	std::vector<My2Vec> steps_taken;
 	Node() {
+		id = "node";
 		parent = nullptr;
 	}
 	void Add_child(Node* child) {
@@ -55,11 +56,9 @@ void* Find_Winning_Recursive(std::vector<void*>& void_vecRef, eOBJ otype, Node* 
 		std::cout << "G was found!" << std::endl;
 		switch (otype) {
 		case eOBJ::Node:
-			return &up_node;
+			return static_cast<void*>(up_node);
 			break;
-		case eOBJ::My2Vec:
-			return &up_node->steps_taken[0];
-			break;
+	
 		}
 	}
 	for (auto childNode : up_node->children) {
@@ -68,11 +67,9 @@ void* Find_Winning_Recursive(std::vector<void*>& void_vecRef, eOBJ otype, Node* 
 			void_vecRef.push_back(v);
 			switch (otype) {
 			case eOBJ::Node:
-				return &up_node;
+				return static_cast<void*>(up_node);
 				break;
-			case eOBJ::My2Vec:
-				return &up_node->steps_taken[0];
-				break;
+		
 			}
 		}
 	}
@@ -168,6 +165,20 @@ struct Generic {
 };
 
 
+void Populate_Maze_OBJ(Maze* maze, eOBJ type, std::vector<void*> generic_list) {
+
+	for (auto i{ generic_list.size() -1 }; i >= 1; i--) {
+		auto node = static_cast<Node*>(generic_list[i]);
+		switch (type) {
+
+		case eOBJ::Node:
+			std::cout << node->steps_taken[0]._x << "," << node->steps_taken[0]._y << "| ";
+			maze->set_rc(node->steps_taken[0], 'o');
+			break;
+	
+		}
+	}
+}
 
 std::vector<My2Vec> PossibleDirecs(My2Vec& start, Maze* maze, Maze* steps) {
 	My2Vec Ds[4] = { start + My2Vec{0,1},start + My2Vec{-1,0} ,start + My2Vec{0,-1} ,start + My2Vec{1,0} };
@@ -257,6 +268,10 @@ int main(int argc, const char* argv[]) {
 	}
 	std::vector<void*> generic_container;
 	Find_Winning_Recursive(generic_container, eOBJ::Node, mainNode);
+	std::cout << "The correct lineage of Nodes # " << generic_container.size() << std::endl;
+	auto correct_steps = new Maze(11);
+	Populate_Maze_OBJ(correct_steps, eOBJ::Node, generic_container);
+	std::cout << correct_steps->str() << std::endl;
 
 	delete recurN;
 	delete maze;
